@@ -1,0 +1,32 @@
+{
+  "name": "Default Splash",
+  "description": "Default splash screen configuration",
+  "version": "1.0.0",
+  "settings": {
+    "title": "FilePulseApp",
+    "subtitle": "File Monitoring & Pulse Detection System",
+    "duration": 3000,
+    "background_color": "#2c3e50",
+    "text_color": "#ecf0f1",
+    "accent_color": "#3498db",
+    "show_progress": true,
+    "show_version": true,
+    "show_logo": true,
+    "fade_in": true,
+    "fade_out": true
+  },
+  "content": {
+    "features": [
+      "🔍 Real-time file monitoring",
+      "📊 Event logging & analytics", 
+      "⚙️ Configurable monitoring rules",
+      "🎨 Modern user interface"
+    ],
+    "loading_messages": [
+      "Loading...",
+      "Initializing...",
+      "Starting up...",
+      "Almost ready..."
+    ]
+  }
+}

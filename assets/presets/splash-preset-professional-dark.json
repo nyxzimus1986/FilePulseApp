@@ -1,0 +1,43 @@
+{
+  "name": "Professional Dark Splash",
+  "description": "Professional dark theme splash screen",
+  "version": "1.0.0",
+  "settings": {
+    "title": "FilePulseApp",
+    "subtitle": "Advanced File System Monitoring",
+    "duration": 3500,
+    "background_color": "#1a252f",
+    "text_color": "#c7d2fe",
+    "accent_color": "#00d4ff",
+    "title_color": "#00d4ff",
+    "subtitle_color": "#7fb3d3",
+    "show_progress": true,
+    "show_version": true,
+    "show_logo": true,
+    "show_features": true,
+    "fade_in": true,
+    "fade_out": true,
+    "glow_effects": true
+  },
+  "content": {
+    "features": [
+      "🔍 Real-time file monitoring",
+      "📊 Event logging & analytics",
+      "⚙️ Configurable monitoring rules", 
+      "🎨 Modern user interface"
+    ],
+    "loading_messages": [
+      "Initializing application...",
+      "Loading configuration...",
+      "Setting up monitoring...",
+      "Preparing interface...",
+      "Almost ready..."
+    ]
+  },
+  "styling": {
+    "title_font": ["Helvetica", 28, "bold"],
+    "subtitle_font": ["Helvetica", 14, "italic"],
+    "feature_font": ["Helvetica", 10],
+    "version_font": ["Helvetica", 8]
+  }
+}

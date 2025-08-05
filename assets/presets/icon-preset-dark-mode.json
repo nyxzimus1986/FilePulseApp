@@ -1,0 +1,35 @@
+{
+  "name": "Dark Mode Theme",
+  "description": "Dark theme for FilePulseApp with modern styling",
+  "version": "1.0.0",
+  "icons": {
+    "file_created": "📄",
+    "file_modified": "✏️",
+    "file_deleted": "🗑️",
+    "file_moved": "📁",
+    "monitoring_active": "👁️",
+    "monitoring_inactive": "💤",
+    "error": "❌",
+    "warning": "⚠️",
+    "success": "✅",
+    "info": "ℹ️"
+  },
+  "colors": {
+    "primary": "#00d4ff",
+    "secondary": "#1a252f",
+    "success": "#00ff88",
+    "warning": "#ffaa00",
+    "error": "#ff4444",
+    "info": "#7fb3d3",
+    "background": "#2d3748",
+    "text": "#e2e8f0",
+    "accent": "#4fd1c7"
+  },
+  "settings": {
+    "use_emoji_icons": true,
+    "icon_size": "medium",
+    "animation_enabled": true,
+    "dark_mode": true,
+    "glow_effects": true
+  }
+}
