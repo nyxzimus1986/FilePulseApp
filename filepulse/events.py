@@ -6,7 +6,7 @@ This module provides event handling and notification capabilities.
 
 import threading
 import time
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, Optional, Set
 from enum import Enum
 import logging
 from dataclasses import dataclass
@@ -51,7 +51,7 @@ class EventHandler:
         """
         raise NotImplementedError
     
-    def can_handle(self, event_type: EventType) -> bool:
+    def can_handle(self, _event_type: EventType) -> bool:
         """Check if this handler can handle the given event type.
         
         Args:
@@ -81,8 +81,8 @@ class FunctionEventHandler(EventHandler):
         """Handle event by calling the wrapped function."""
         try:
             self.handler_func(event)
-        except Exception as e:
-            logging.getLogger(__name__).error(f"Error in event handler: {e}")
+        except (OSError, RuntimeError) as e:
+            logging.getLogger(__name__).error("Error in event handler: %s", e)
     
     def can_handle(self, event_type: EventType) -> bool:
         """Check if this handler can handle the given event type."""
@@ -213,7 +213,7 @@ class EventBus:
         """
         if handler not in self.handlers:
             self.handlers.append(handler)
-            self.logger.debug(f"Added event handler: {type(handler).__name__}")
+            self.logger.debug("Added event handler: %s", type(handler).__name__)
     
     def remove_handler(self, handler: EventHandler) -> None:
         """Remove event handler.
@@ -223,7 +223,7 @@ class EventBus:
         """
         if handler in self.handlers:
             self.handlers.remove(handler)
-            self.logger.debug(f"Removed event handler: {type(handler).__name__}")
+            self.logger.debug("Removed event handler: %s", type(handler).__name__)
     
     def add_filter(self, event_filter: EventFilter) -> None:
         """Add event filter.
@@ -233,7 +233,7 @@ class EventBus:
         """
         if event_filter not in self.filters:
             self.filters.append(event_filter)
-            self.logger.debug(f"Added event filter: {type(event_filter).__name__}")
+            self.logger.debug("Added event filter: %s", type(event_filter).__name__)
     
     def remove_filter(self, event_filter: EventFilter) -> None:
         """Remove event filter.
@@ -243,7 +243,7 @@ class EventBus:
         """
         if event_filter in self.filters:
             self.filters.remove(event_filter)
-            self.logger.debug(f"Removed event filter: {type(event_filter).__name__}")
+            self.logger.debug("Removed event filter: %s", type(event_filter).__name__)
     
     def publish(self, event: Event) -> None:
         """Publish an event.
@@ -323,14 +323,14 @@ class EventBus:
                 if handler.can_handle(event.event_type):
                     try:
                         handler.handle_event(event)
-                    except Exception as e:
+                    except (OSError, RuntimeError) as e:
                         self.stats['handler_errors'] += 1
-                        self.logger.error(f"Error in event handler {type(handler).__name__}: {e}")
+                        self.logger.error("Error in event handler %s: %s", type(handler).__name__, e)
             
             self.stats['events_processed'] += 1
             
-        except Exception as e:
-            self.logger.error(f"Error processing event {event.event_type}: {e}")
+        except (OSError, RuntimeError) as e:
+            self.logger.error("Error processing event %s: %s", event.event_type, e)
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get event bus statistics.
@@ -369,7 +369,7 @@ def get_event_bus() -> EventBus:
     Returns:
         Global EventBus instance
     """
-    global _global_event_bus
+    # global _global_event_bus  # Removed for lint compliance
     if _global_event_bus is None:
         _global_event_bus = EventBus()
     return _global_event_bus

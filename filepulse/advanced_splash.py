@@ -6,48 +6,29 @@ This module extends the basic splash screen with additional features and customi
 
 import tkinter as tk
 from tkinter import ttk
-import json
 import os
 from typing import Optional, Dict, Any
-import time
-import threading
 
 from .splash import SplashScreen
 from .utils import load_json_file
 
 
 class AdvancedSplashScreen(SplashScreen):
-    """Advanced splash screen with preset support and enhanced features."""
-    
     def __init__(self, parent: tk.Tk, preset_path: Optional[str] = None, 
                  preset_name: Optional[str] = None, duration: int = None):
-        """Initialize advanced splash screen.
-        
-        Args:
-            parent: Parent tkinter window
-            preset_path: Path to preset file
-            preset_name: Name of built-in preset to use
-            duration: Override duration from preset
-        """
+        """Advanced splash screen with preset support and enhanced features."""
+        self.progress = None
+        self.status_label = None
+        self.messages = []
+        self.message_index = 0
         self.preset_config = self._load_preset(preset_path, preset_name)
-        
         # Get duration from preset or use provided value
         if duration is None:
             duration = self.preset_config.get('settings', {}).get('duration', 3000)
-        
-        # Initialize parent class
         super().__init__(parent, duration)
     
     def _load_preset(self, preset_path: Optional[str], preset_name: Optional[str]) -> Dict[str, Any]:
-        """Load splash screen preset configuration.
-        
-        Args:
-            preset_path: Path to custom preset file
-            preset_name: Name of built-in preset
-            
-        Returns:
-            Preset configuration dictionary
-        """
+        """Load splash screen preset configuration."""
         if preset_path and os.path.exists(preset_path):
             config = load_json_file(preset_path, {})
             if config:
@@ -262,14 +243,5 @@ class AdvancedSplashScreen(SplashScreen):
 
 def create_advanced_splash(parent: tk.Tk, preset_name: str = "default", 
                           duration: Optional[int] = None) -> AdvancedSplashScreen:
-    """Create advanced splash screen with preset.
-    
-    Args:
-        parent: Parent tkinter window
-        preset_name: Name of preset to use ("default", "professional-dark")
-        duration: Override duration in milliseconds
-        
-    Returns:
-        AdvancedSplashScreen instance
-    """
+    # Create advanced splash screen with preset.
     return AdvancedSplashScreen(parent, preset_name=preset_name, duration=duration)

@@ -7,11 +7,9 @@ This module handles formatting and outputting monitoring results to various dest
 import os
 import json
 import csv
-import time
 import logging
 from typing import List, Dict, Any, Optional, TextIO
 from datetime import datetime
-from pathlib import Path
 
 from .monitor import FileEvent
 from .config import Config
@@ -118,9 +116,9 @@ class OutputManager:
             
             # Open log file in append mode
             self.log_file = open(log_file_path, 'a', encoding='utf-8')
-            self.logger.info(f"Logging to file: {log_file_path}")
+            self.logger.info("Logging to file: %s", log_file_path)
         except IOError as e:
-            self.logger.error(f"Failed to open log file {log_file_path}: {e}")
+            self.logger.error("Failed to open log file %s: %s", log_file_path, e)
     
     def log_event(self, event: FileEvent) -> None:
         """Log a file event.
@@ -140,7 +138,7 @@ class OutputManager:
                 self.log_file.write(formatted_event + '\n')
                 self.log_file.flush()
             except IOError as e:
-                self.logger.error(f"Failed to write to log file: {e}")
+                self.logger.error("Failed to write to log file: %s", e)
         
         # Maintain buffer size
         if len(self.event_buffer) > self.buffer_size:
@@ -209,10 +207,10 @@ class OutputManager:
                 else:  # default to text
                     self._export_text(f, events_to_export)
             
-            self.logger.info(f"Exported {len(events_to_export)} events to {file_path}")
+            self.logger.info("Exported %d events to %s", len(events_to_export), file_path)
             return True
         except IOError as e:
-            self.logger.error(f"Failed to export events to {file_path}: {e}")
+            self.logger.error("Failed to export events to %s: %s", file_path, e)
             return False
     
     def _export_json(self, file: TextIO, events: List[FileEvent]) -> None:
@@ -230,7 +228,6 @@ class OutputManager:
     
     def _export_csv(self, file: TextIO, events: List[FileEvent]) -> None:
         """Export events in CSV format."""
-        import csv
         writer = csv.writer(file)
         writer.writerow(["timestamp", "event_type", "file_path", "iso_timestamp"])
         

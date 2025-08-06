@@ -150,7 +150,6 @@ Examples:
         default=True,
         help="Monitor directories recursively (default: True)"
     )
-    
     parser.add_argument(
         "--no-recursive",
         action="store_false",
@@ -219,7 +218,9 @@ def main():
     args = parser.parse_args()
     
     if args.cli:
-        cli = CLI(config_path=args.config)
+        # Create config object
+        config = Config(config_path=args.config) if args.config else Config()
+        cli = CLI(config=config)
         cli.run()
     else:
         # If no CLI flag, show help

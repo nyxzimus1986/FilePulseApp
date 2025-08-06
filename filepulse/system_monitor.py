@@ -103,8 +103,8 @@ class SystemMonitor:
             
             self.logger.info("System monitoring started")
             return True
-        except Exception as e:
-            self.logger.error(f"Failed to start system monitoring: {e}")
+        except (OSError, RuntimeError) as e:
+            self.logger.error("Failed to start system monitoring: %s", e)
             return False
     
     def stop_monitoring(self) -> None:
@@ -123,8 +123,8 @@ class SystemMonitor:
         try:
             self.last_disk_io = psutil.disk_io_counters()
             self.last_network_io = psutil.net_io_counters()
-        except Exception as e:
-            self.logger.warning(f"Failed to initialize counters: {e}")
+        except (OSError, RuntimeError) as e:
+            self.logger.warning("Failed to initialize counters: %s", e)
     
     def _monitoring_loop(self) -> None:
         """Main monitoring loop."""
@@ -141,11 +141,11 @@ class SystemMonitor:
                     for callback in self.callbacks:
                         try:
                             callback(metrics)
-                        except Exception as e:
-                            self.logger.error(f"Error in metrics callback: {e}")
+                        except (OSError, RuntimeError) as e:
+                            self.logger.error("Error in metrics callback: %s", e)
                 
-            except Exception as e:
-                self.logger.error(f"Error in monitoring loop: {e}")
+            except (OSError, RuntimeError) as e:
+                self.logger.error("Error in monitoring loop: %s", e)
             
             time.sleep(self.update_interval)
     
@@ -176,7 +176,7 @@ class SystemMonitor:
                     disk_io_read = current_disk_io.read_bytes - self.last_disk_io.read_bytes
                     disk_io_write = current_disk_io.write_bytes - self.last_disk_io.write_bytes
                 self.last_disk_io = current_disk_io
-            except Exception:
+            except (OSError, RuntimeError):
                 pass
             
             # Network I/O
@@ -188,7 +188,7 @@ class SystemMonitor:
                     network_sent = current_network_io.bytes_sent - self.last_network_io.bytes_sent
                     network_recv = current_network_io.bytes_recv - self.last_network_io.bytes_recv
                 self.last_network_io = current_network_io
-            except Exception:
+            except (OSError, RuntimeError):
                 pass
             
             return SystemMetrics(
@@ -203,8 +203,8 @@ class SystemMonitor:
                 network_recv=max(0, network_recv)
             )
             
-        except Exception as e:
-            self.logger.error(f"Failed to collect metrics: {e}")
+        except (OSError, RuntimeError) as e:
+            self.logger.error("Failed to collect metrics: %s", e)
             return None
     
     def get_current_metrics(self) -> Optional[SystemMetrics]:
@@ -334,8 +334,8 @@ class SystemMonitor:
                 'boot_time': psutil.boot_time()
             }
             
-        except Exception as e:
-            self.logger.error(f"Failed to get system info: {e}")
+        except (OSError, RuntimeError) as e:
+            self.logger.error("Failed to get system info: %s", e)
             return {}
     
     def is_monitoring(self) -> bool:
@@ -390,6 +390,6 @@ def get_system_resources() -> Dict[str, Any]:
             'disk_io': psutil.disk_io_counters()._asdict() if psutil.disk_io_counters() else {},
             'network_io': psutil.net_io_counters()._asdict() if psutil.net_io_counters() else {}
         }
-    except Exception as e:
+    except (OSError, RuntimeError) as e:
         logging.getLogger(__name__).error("Failed to get system resources: %s", e)
         return {}

@@ -6,8 +6,7 @@ This module provides splash screen capabilities for the application startup.
 
 import tkinter as tk
 from tkinter import ttk
-import threading
-import time
+ # threading and time are not used
 from typing import Optional
 import os
 
@@ -206,6 +205,7 @@ class AdvancedSplashScreen(SplashScreen):
         
         if self.image_path and os.path.exists(self.image_path):
             try:
+                # Optional: Pillow (PIL) is required for image support
                 from PIL import Image, ImageTk
                 image = Image.open(self.image_path)
                 image = image.resize((120, 120), Image.Resampling.LANCZOS)
