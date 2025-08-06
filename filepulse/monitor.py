@@ -7,14 +7,13 @@ This module provides file system monitoring capabilities using the watchdog libr
 import os
 import time
 from datetime import datetime
-from typing import List, Callable, Optional, Set
+from typing import List, Callable, Set
 from threading import Thread, Event
-from pathlib import Path
 import logging
 
 try:
     from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler, FileSystemEvent
+    from watchdog.events import FileSystemEventHandler
     WATCHDOG_AVAILABLE = True
 except ImportError:
     WATCHDOG_AVAILABLE = False
@@ -33,7 +32,6 @@ class FileEvent:
     
     def _classify_source(self, file_path: str) -> str:
         """Classify if this is a system or user change based on file patterns."""
-        import os
         
         # Get file/directory name and path components
         file_name = os.path.basename(file_path).lower()
@@ -110,9 +108,9 @@ class FilePulseEventHandler(FileSystemEventHandler):
     def on_created(self, event):
         if not event.is_directory and self._should_process(event.src_path):
             file_event = FileEvent(
-                path=event.src_path,
                 event_type='created',
-                timestamp=datetime.now(),
+                file_path=event.src_path,
+                timestamp=datetime.now().timestamp(),
                 full_config=self.full_config
             )
             self.callback(file_event)
@@ -120,9 +118,9 @@ class FilePulseEventHandler(FileSystemEventHandler):
     def on_modified(self, event):
         if not event.is_directory and self._should_process(event.src_path):
             file_event = FileEvent(
-                path=event.src_path,
                 event_type='modified',
-                timestamp=datetime.now(),
+                file_path=event.src_path,
+                timestamp=datetime.now().timestamp(),
                 full_config=self.full_config
             )
             self.callback(file_event)
@@ -130,9 +128,9 @@ class FilePulseEventHandler(FileSystemEventHandler):
     def on_deleted(self, event):
         if not event.is_directory and self._should_process(event.src_path):
             file_event = FileEvent(
-                path=event.src_path,
                 event_type='deleted',
-                timestamp=datetime.now(),
+                file_path=event.src_path,
+                timestamp=datetime.now().timestamp(),
                 full_config=self.full_config
             )
             self.callback(file_event)
@@ -140,9 +138,9 @@ class FilePulseEventHandler(FileSystemEventHandler):
     def on_moved(self, event):
         if not event.is_directory and self._should_process(event.dest_path):
             file_event = FileEvent(
-                path=event.dest_path,
                 event_type='moved',
-                timestamp=datetime.now(),
+                file_path=event.dest_path,
+                timestamp=datetime.now().timestamp(),
                 full_config=self.full_config
             )
             self.callback(file_event)
@@ -187,7 +185,7 @@ class PollingMonitor:
     def _scan_directory(self, directory: str) -> None:
         """Scan directory for changes."""
         try:
-            for root, dirs, files in os.walk(directory):
+            for root, _dirs, files in os.walk(directory):
                 for file in files:
                     file_path = os.path.join(root, file)
                     if self._should_process(file_path):
@@ -210,18 +208,18 @@ class PollingMonitor:
             if file_path not in self.file_states:
                 self.file_states[file_path] = current_state
                 file_event = FileEvent(
-                    path=file_path,
                     event_type='created',
-                    timestamp=datetime.now(),
+                    file_path=file_path,
+                    timestamp=datetime.now().timestamp(),
                     full_config=self.full_config
                 )
                 self.callback(file_event)
             elif self.file_states[file_path] != current_state:
                 self.file_states[file_path] = current_state
                 file_event = FileEvent(
-                    path=file_path,
                     event_type='modified',
-                    timestamp=datetime.now(),
+                    file_path=file_path,
+                    timestamp=datetime.now().timestamp(),
                     full_config=self.full_config
                 )
                 self.callback(file_event)
@@ -281,7 +279,7 @@ class FileMonitor:
             True if path was added successfully
         """
         if not os.path.exists(path):
-            self.logger.error(f"Path does not exist: {path}")
+            self.logger.error("Path does not exist: %s", path)
             return False
         
         if path not in self.watched_paths:
@@ -361,10 +359,10 @@ class FileMonitor:
             
             self.observer.start()
             self.is_monitoring = True
-            self.logger.info(f"Started watchdog monitoring for {len(self.watched_paths)} paths")
+            self.logger.info("Started watchdog monitoring for %d paths", len(self.watched_paths))
             return True
-        except Exception as e:
-            self.logger.error(f"Failed to start watchdog monitoring: {e}")
+        except (OSError, RuntimeError) as e:
+            self.logger.error("Failed to start watchdog monitoring: %s", e)
             return False
     
     def _start_polling_monitoring(self) -> bool:
@@ -380,10 +378,10 @@ class FileMonitor:
             )
             self.polling_monitor.start_monitoring(self.watched_paths)
             self.is_monitoring = True
-            self.logger.info(f"Started polling monitoring for {len(self.watched_paths)} paths")
+            self.logger.info("Started polling monitoring for %d paths", len(self.watched_paths))
             return True
-        except Exception as e:
-            self.logger.error(f"Failed to start polling monitoring: {e}")
+        except (OSError, RuntimeError) as e:
+            self.logger.error("Failed to start polling monitoring: %s", e)
             return False
     
     def _create_filtered_callback(self) -> Callable[[FileEvent], None]:
@@ -441,7 +439,7 @@ class FileMonitor:
         self.show_system_changes = show_system
         self.show_user_changes = show_user
         self.separate_system_user = separate
-        self.logger.info(f"Updated filtering: system={show_system}, user={show_user}, separate={separate}")
+        self.logger.info("Updated filtering: system=%s, user=%s, separate=%s", show_system, show_user, separate)
     
     def _add_watch_to_observer(self, path: str) -> None:
         """Add watch to existing observer."""

@@ -9,8 +9,7 @@ import sys
 import re
 import hashlib
 import json
-from typing import Any, Dict, List, Optional, Union
-from pathlib import Path
+from typing import Any, Dict, List, Optional
 import logging
 
 
@@ -254,7 +253,7 @@ def load_json_file(file_path: str, default: Any = None) -> Any:
         with open(file_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except (OSError, IOError, json.JSONDecodeError) as e:
-        logging.getLogger(__name__).warning(f"Failed to load JSON file {file_path}: {e}")
+        logging.getLogger(__name__).warning("Failed to load JSON file %s: %s", file_path, e)
         return default
 
 
@@ -279,7 +278,7 @@ def save_json_file(file_path: str, data: Any, indent: int = 2) -> bool:
             json.dump(data, f, indent=indent, ensure_ascii=False)
         return True
     except (OSError, IOError, TypeError) as e:
-        logging.getLogger(__name__).error(f"Failed to save JSON file {file_path}: {e}")
+        logging.getLogger(__name__).error("Failed to save JSON file %s: %s", file_path, e)
         return False
 
 
@@ -383,7 +382,7 @@ def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None,
             file_handler.setFormatter(logging.Formatter(log_format))
             logger.addHandler(file_handler)
         except (OSError, IOError) as e:
-            logger.warning(f"Failed to setup file logging to {log_file}: {e}")
+            logger.warning("Failed to setup file logging to %s: %s", log_file, e)
     
     return logger
 

@@ -5,11 +5,10 @@ This module provides the main GUI interface using tkinter.
 """
 
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox, scrolledtext
-import threading
+from tkinter import ttk, filedialog, messagebox
 import queue
 import time
-from typing import Optional, List
+from typing import List
 import logging
 
 from .monitor import FileMonitor, FileEvent
@@ -94,9 +93,9 @@ class FileEventListFrame(ttk.Frame):
         
         # Apply different colors based on source type
         if event.is_system_change():
-            self.tree.set(item_id, tags=("system",))
+            self.tree.item(item_id, tags=("system",))
         else:
-            self.tree.set(item_id, tags=("user",))
+            self.tree.item(item_id, tags=("user",))
         
         self.events.insert(0, event)
         
@@ -145,7 +144,7 @@ class FileEventListFrame(ttk.Frame):
                     subprocess.call(['open', file_path])
                 else:
                     subprocess.call(['xdg-open', file_path])
-            except Exception as e:
+            except (OSError, subprocess.SubprocessError) as e:
                 messagebox.showerror("Error", f"Could not open file: {e}")
 
 
@@ -442,7 +441,7 @@ class FilePulseGUI:
         """
         if hasattr(self, 'monitor') and self.monitor:
             self.monitor.set_filtering_options(show_system, show_user, separate)
-            self.logger.info(f"Filter options updated: system={show_system}, user={show_user}, separate={separate}")
+            self.logger.info("Filter options updated: system=%s, user=%s, separate=%s", show_system, show_user, separate)
     
     def start_monitoring(self) -> bool:
         """Start file monitoring.

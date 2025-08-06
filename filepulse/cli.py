@@ -6,9 +6,7 @@ This module provides the CLI functionality for the file monitoring application.
 
 import argparse
 import signal
-import sys
 import time
-from typing import Optional
 import logging
 
 from .monitor import FileMonitor, FileEvent
@@ -57,7 +55,7 @@ class CLI:
         
         for directory in watch_dirs:
             if not self.monitor.add_watch_path(directory):
-                self.logger.error(f"Failed to add watch path: {directory}")
+                self.logger.error("Failed to add watch path: %s", directory)
         
         # Start monitoring
         if not self.monitor.start_monitoring():
@@ -89,9 +87,9 @@ class CLI:
             timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(event.timestamp))
             print(f"[{timestamp}] {event.event_type.upper()}: {event.file_path}")
     
-    def _signal_handler(self, signum, frame):
+    def _signal_handler(self, signum, _frame):
         """Handle system signals for graceful shutdown."""
-        self.logger.info(f"Received signal {signum}, shutting down...")
+        self.logger.info("Received signal %s, shutting down...", signum)
         self.running = False
     
     def _cleanup(self) -> None:
@@ -213,3 +211,16 @@ def apply_cli_args_to_config(args: argparse.Namespace, config: Config) -> None:
     
     if args.quiet:
         config.set("output", "console_output", False)
+
+
+def main():
+    """Main entry point for CLI."""
+    parser = create_cli_parser()
+    args = parser.parse_args()
+    
+    if args.cli:
+        cli = CLI(config_path=args.config)
+        cli.run()
+    else:
+        # If no CLI flag, show help
+        parser.print_help()

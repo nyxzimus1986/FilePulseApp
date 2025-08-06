@@ -4,7 +4,11 @@ System monitoring functionality for FilePulseApp.
 This module provides system resource monitoring capabilities.
 """
 
-import psutil
+try:
+    import psutil
+except ImportError as e:
+    raise ImportError("psutil is required for system monitoring. Please install it with 'pip install psutil'") from e
+
 import time
 import threading
 from typing import Dict, List, Optional, Callable, Any
@@ -352,18 +356,40 @@ def get_system_resources() -> Dict[str, Any]:
     """Get current system resource usage.
     
     Returns:
-        Dictionary with current resource usage
+        Dictionary containing system resource information
     """
     try:
+        memory = psutil.virtual_memory()
+        memory_dict = {
+            'total': memory.total,
+            'available': memory.available,
+            'percent': memory.percent,
+            'used': memory.used,
+            'free': memory.free,
+        }
+        
+        # Get disk usage for accessible partitions
+        disk_usage = {}
+        for partition in psutil.disk_partitions():
+            try:
+                if not partition.mountpoint.startswith('/sys') and not partition.mountpoint.startswith('/proc'):
+                    usage = psutil.disk_usage(partition.mountpoint)
+                    disk_usage[partition.mountpoint] = {
+                        'total': usage.total,
+                        'used': usage.used,
+                        'free': usage.free,
+                        'percent': usage.percent
+                    }
+            except (PermissionError, FileNotFoundError):
+                continue
+        
         return {
             'cpu_percent': psutil.cpu_percent(interval=1),
-            'memory': psutil.virtual_memory()._asdict(),
-            'disk_usage': {p.mountpoint: psutil.disk_usage(p.mountpoint)._asdict() 
-                          for p in psutil.disk_partitions() 
-                          if not p.mountpoint.startswith('/sys') and not p.mountpoint.startswith('/proc')},
+            'memory': memory_dict,
+            'disk_usage': disk_usage,
             'disk_io': psutil.disk_io_counters()._asdict() if psutil.disk_io_counters() else {},
             'network_io': psutil.net_io_counters()._asdict() if psutil.net_io_counters() else {}
         }
     except Exception as e:
-        logging.getLogger(__name__).error(f"Failed to get system resources: {e}")
+        logging.getLogger(__name__).error("Failed to get system resources: %s", e)
         return {}
